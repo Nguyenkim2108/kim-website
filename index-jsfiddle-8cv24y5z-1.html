@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSFiddle 8cv24y5z</title>
+
+  <style>
+    body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100vh; /* Đảm bảo trang chiếm toàn bộ màn hình */
+    background-color: #f4f4f4;
+}
+
+h1 {
+    font-size: 36px;
+    color: #333;
+    z-index: 10;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#raceTrack {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background: url("https://drive.google.com/uc?export=view&id=1rt1xIu0tJbtWibUoALQ2Sq2xXJTkTsj0") no-repeat center center;
+    background-size: cover; /* Đảm bảo ảnh tràn màn hình */
+}
+
+#startLine {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 100px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.car {
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: left 0.1s ease-out;
+    background-size: cover;
+}
+
+#startButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 18px;
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#startButton:hover {
+    background-color: #45a049;
+}
+
+#winner {
+    display: none;
+    margin-top: 20px;
+}
+
+#winner img {
+    width: 100px;
+    height: 100px;
+}
+
+#winnerText {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+#countdown {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+}
+
+#timer {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+}
+  </style>
+
+  
+</head>
+<body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Đua Xe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Game Đua Xe</h1>
+
+    <!-- Khung đường đua -->
+    <div id="raceTrack">
+        <img src="https://drive.google.com/uc?export=view&id=1rt1xIu0tJbtWibUoALQ2Sq2xXJTkTsj0" alt="Đường đua" id="raceTrackImage">
+
+        <!-- Vạch xuất phát -->
+        <img src="https://drive.google.com/uc?export=view&id=1DYKUP5gh7qBMG3RKHlLkluDo_zVfUXjh" alt="Vạch xuất phát" id="startLine">
+
+        <!-- Các chiếc xe -->
+        <div class="car" id="car1"></div>
+        <div class="car" id="car2"></div>
+        <div class="car" id="car3"></div>
+        <div class="car" id="car4"></div>
+        <div class="car" id="car5"></div>
+    </div>
+
+    <!-- Chọn chiếc xe chiến thắng -->
+    <div id="chooseWinner">
+        <h3>Chọn chiếc xe chiến thắng:</h3>
+        <select id="winnerSelect">
+            <option value="1">Xe 1</option>
+            <option value="2">Xe 2</option>
+            <option value="3">Xe 3</option>
+            <option value="4">Xe 4</option>
+            <option value="5">Xe 5</option>
+        </select>
+    </div>
+
+    <!-- Cờ đua và đồng hồ đếm ngược -->
+    <div id="countdown" style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center;">
+        <img id="flagImage" src="https://drive.google.com/uc?export=view&id=1DYKUP5gh7qBMG3RKHlLkluDo_zVfUXjh" alt="Cờ đua" style="width: 100px; height: 100px; margin-right: 20px;">
+        <p id="timer" style="font-size: 36px; font-weight: bold; color: #333;">30</p>
+    </div>
+
+    <!-- Nút bắt đầu -->
+    <button id="startButton">Bắt đầu</button>
+
+    <!-- Thông báo chiến thắng -->
+    <div id="winner" class="winner" style="display: none;">
+        <h2>Chiếc xe chiến thắng là: </h2>
+        <img id="winnerImage" src="" alt="Xe chiến thắng" style="width: 100px; height: 100px;">
+        <p id="winnerText"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+  <script>
+    let cars = [];
+let carCount = 5; // Số lượng xe
+let winnerCar = null;
+
+for (let i = 1; i <= carCount; i++) {
+    cars.push({
+        id: i,
+        element: document.getElementById('car' + i),
+        distance: 0,
+        speed: Math.random() * 5 + 2, // Tốc độ ngẫu nhiên cho mỗi xe
+        topPosition: i * 60  // Các xe sẽ đứng theo hàng dọc
+    });
+    cars[i - 1].element.style.top = cars[i - 1].topPosition + 'px'; 
+}
+
+// Cập nhật các ảnh xe vào từng chiếc xe
+document.getElementById('car1').style.backgroundImage = "url('https://drive.google.com/uc?export=view&id=1Vk-GynILZUrfvXYSBpmGTY3EJNJ1Mipb')";
+document.getElementById('car2').style.backgroundImage = "url('https://drive.google.com/uc?export=view&id=1vj6tSteShdrPeWlpzb9b2qCij6fDd0Fv')";
+document.getElementById('car3').style.backgroundImage = "url('https://drive.google.com/uc?export=view&id=1w8GcXxa2M-ojtRr_zgwKwC8zs0xvV9xX')";
+document.getElementById('car4').style.backgroundImage = "url('https://drive.google.com/uc?export=view&id=1bCXWSAF1DI1wq1pvmGm8KijJIIRhdYU1')";
+document.getElementById('car5').style.backgroundImage = "url('https://drive.google.com/uc?export=view&id=13x-fSbNdbi4MHCZa8EsLdxQcXRiB5H7u')";
+
+document.getElementById('winnerSelect').addEventListener('change', function() {
+    winnerCar = parseInt(this.value);  
+});
+
+document.getElementById('startButton').addEventListener('click', startRace);
+
+let countdownTimer;
+let raceTimer;
+
+function startRace() {
+    cars.forEach(car => {
+        car.distance = 0;
+        car.element.style.left = '0px';
+    });
+
+    document.getElementById('winner').style.display = 'none'; 
+    document.getElementById('flagImage').style.display = 'block'; 
+
+    let timeRemaining = 30;
+    document.getElementById('timer').innerText = timeRemaining;
+
+    countdownTimer = setInterval(() => {
+        timeRemaining--;
+        document.getElementById('timer').innerText = timeRemaining;
+
+        if (timeRemaining <= 0) {
+            clearInterval(countdownTimer);
+            endRace();
+        }
+    }, 1000);
+
+    raceTimer = setInterval(() => {
+        cars.forEach(car => {
+            if (winnerCar && car.id === winnerCar) {
+                car.distance += 10; 
+            } else {
+                car.distance += car.speed; 
+            }
+
+            car.element.style.left = car.distance + 'px';
+        });
+    }, 30);
+}
+
+function endRace() {
+    clearInterval(raceTimer);
+
+    let winner = null;
+    cars.forEach(car => {
+        if (car.distance >= document.getElementById('raceTrack').offsetWidth - 60) {
+            winner = car;
+        }
+    });
+
+    if (winner) {
+        document.getElementById('winner').style.display = 'block';
+        document.getElementById('flagImage').style.display = 'block'; 
+        document.getElementById('winnerImage').src = 'https://via.placeholder.com/100x100?text=Car+' + winner.id;
+        document.getElementById('winnerText').innerText = 'Chúc mừng xe ' + winner.id + ' chiến thắng!';
+    }
+}
+  </script>
+</body>
+</html>
